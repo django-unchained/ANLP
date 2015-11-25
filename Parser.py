@@ -28,6 +28,7 @@ class Parser:
     def execute_transition(self, transition):
         """This function should take a transition object and apply to the
     	current parser state. It need not return anything."""
+        self.transitions.append(transition.transitionType)
         if (transition.transitionType == Transition.Shift):
             self.stack.append(self.buff.pop())
         elif (transition.transitionType == Transition.LeftArc):
@@ -109,11 +110,11 @@ if __name__ == "__main__":
     parser.add_argument('testset', help='Dev/test treebank')
     args = parser.parse_args()
 
-    #p = Parser(args.labeled)
-    p = Parser(True)
+    p = Parser(args.labeled)
+    #p = Parser(True)
     #p = Parser(False)
     model = PerceptronModel(args.labeled)
-    model = PerceptronModel(True)
+    #model = PerceptronModel(True)
     #model = PerceptronModel(False)
 
     p.train(args.trainingcorpus, model)

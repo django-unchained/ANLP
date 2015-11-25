@@ -5,7 +5,7 @@ from helper_functions import Helper as p
 class Oracle:
 
     def is_removable(self, word, arcs, leftmost_child, rightmost_child):
-        if ( (leftmost_child != p.INFINITY and not arcs.get(leftmost_child, False)) or (rightmost_child != -1 and not arcs.get(rightmost_child, False)) ):
+        if ( (leftmost_child != p.INFINITY and not arcs.get(leftmost_child, False)) or (rightmost_child != -1 and not arcs.get(rightmost_child, False)) ):#CHeck if thie value is correct
             return(False)
         if ( p.is_root(word) ):
             return(False)
