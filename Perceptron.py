@@ -2,6 +2,7 @@ import sys
 import math
 from Transition import Transition
 from collections import defaultdict
+from helper_functions import Helper as h
 
 def dot(features, weights):
     score = 0.0
@@ -22,7 +23,18 @@ class PerceptronModel:
             'prep prt punct purpcl quantmod rcmod rel tmod ' +   \
             'xcomp').split() if labeled else [None]
 
-    def extract_features(self, transition, stack, buff, labels, previous_transitions):
+    def get_valency(self, arcs, head):
+        left_valency = 0
+        right_valency = 0
+        for tail in arcs.keys():
+            if arcs.get(tail, -1) == head:
+                if tail < head:
+                    left_valency += 1
+                elif tail > head:
+                    right_valency += 1
+        return([left_valency, right_valency])
+
+    def extract_features(self, transition, stack, buff, labels, previous_transitions, arcs):
         features = defaultdict(float)
         tType = transition.transitionType
         label = transition.label
@@ -59,6 +71,22 @@ class PerceptronModel:
             # Label bias
             features['label=%s' % (transition.label)] = 1
 
+        #Features based on http://dl.acm.org/citation.cfm?id=2002777
+        #Distance function
+        if len(stack) > 0 and len(buff) > 0:
+            dist = h.get_id(stack[-1]) - h.get_id(buff[-1])
+            features['transition=%d,dist=%d' % (tType, dist)] = 1
+
+        #Valency function
+        if len(stack) > 1:
+            if tType == 1: # Left Arc
+                [left_valency, right_valency] = self.get_valency(arcs, h.get_id(stack[-1]))
+                features['transition=%d,head_left_valency=%d' % (tType, left_valency)] = 1
+                features['transition=%d,head_right_valency=%d' % (tType, right_valency)] = 1
+            else:
+                [left_valency, right_valency] = self.get_valency(arcs, h.get_id(stack[-2]))
+                features['transition=%d,head_left_valency=%d' % (tType, left_valency)] = 1
+                features['transition=%d,head_right_valency=%d' % (tType, right_valency)] = 1
         return features
 
     def possible_transitions(self, stack, buff):
@@ -81,13 +109,13 @@ class PerceptronModel:
             if self.weights[key] == 0.0:
                 del self.weights[key]
 
-    def learn(self, correct_transition, stack, buff, labels, previous_transitions):
+    def learn(self, correct_transition, stack, buff, labels, previous_transitions, arcs):
         correct_features = None
         best_features = None
         best_score = None
         best_transition = None
         for transition in self.possible_transitions(stack, buff):
-            features = self.extract_features(transition, stack, buff, labels, previous_transitions)
+            features = self.extract_features(transition, stack, buff, labels, previous_transitions, arcs)
             score = dot(features, self.weights)
             if best_score == None or score > best_score:
                 best_score = score
@@ -101,11 +129,11 @@ class PerceptronModel:
             assert correct_features != None
             self.update(correct_features, best_features)
 
-    def predict(self, stack, buff, labels, previous_transitions):
+    def predict(self, stack, buff, labels, previous_transitions, arcs):
         best_score = None
         best_transition = None
         for transition in self.possible_transitions(stack, buff):
-            features = self.extract_features(transition, stack, buff, labels, previous_transitions)
+            features = self.extract_features(transition, stack, buff, labels, previous_transitions, arcs)
             score = dot(features, self.weights)
             if best_score == None or score > best_score:
                 best_score = score

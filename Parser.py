@@ -89,7 +89,7 @@ class Parser:
                     self.leftmostChildren, self.rightmostChildren, \
                     self.arcs, self.labeled)
                 model.learn(transition, self.stack, self.buff, \
-                    self.labels, self.transitions)
+                    self.labels, self.transitions, self.arcs)
                 self.execute_transition(transition)
 
     def parse(self, testSet, model):
@@ -98,7 +98,7 @@ class Parser:
             self.initialize(sentence)
             while len(self.buff) > 0 or len(self.stack) > 1:
                 _, transition = model.predict(self.stack, self.buff, \
-                    self.labels, self.transitions)
+                    self.labels, self.transitions, self.arcs)
                 self.execute_transition(transition)
             self.output(sentence)
 
@@ -110,11 +110,11 @@ if __name__ == "__main__":
     parser.add_argument('testset', help='Dev/test treebank')
     args = parser.parse_args()
 
-    p = Parser(args.labeled)
-    #p = Parser(True)
+    #p = Parser(args.labeled)
+    p = Parser(True)
     #p = Parser(False)
-    model = PerceptronModel(args.labeled)
-    #model = PerceptronModel(True)
+    #model = PerceptronModel(args.labeled)
+    model = PerceptronModel(True)
     #model = PerceptronModel(False)
 
     p.train(args.trainingcorpus, model)
