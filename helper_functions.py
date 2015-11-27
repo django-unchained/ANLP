@@ -1,5 +1,13 @@
 class Helper:
     INFINITY = 100000000
+    LEX_FEAT = 1
+    POS_FEAT = 2
+    DEP_FEAT = 3
+
+    STACK_SOURCE = 1
+    BUFF_SOURCE = 2
+    INPUT_SOURCE = 3
+
 
 
     ####################################################################################################################
