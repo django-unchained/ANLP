@@ -3,6 +3,8 @@ import math
 from Transition import Transition
 from collections import defaultdict
 from helper_functions import Helper as h
+sys.path.append('/home/akashb/Desktop/Acads/ANLP/libsvm-3.20/python')
+from svmutil import *
 
 
 def dot(features, weights):
@@ -31,6 +33,10 @@ class PerceptronModel:
             'pcomp pobj poss possessive preconj pred predet ' +  \
             'prep prt punct purpcl quantmod rcmod rel tmod ' +   \
             'xcomp').split() if labeled else [None]
+        self.svm_feats = {}
+        self.master_feats = {}
+        self.instance_count = 0
+        self.svm_labels = []
 
     def try_get_token(self, source, index):
         try:
@@ -383,27 +389,38 @@ class PerceptronModel:
             if self.weights[key] == 0.0:
                 del self.weights[key]
 
-    def learn(self, correct_transition, stack, buff, labels, previous_transitions, arcs, input_sentence):
-        correct_features = None
-        best_features = None
-        best_score = None
-        best_transition = None
+    def compile_svm_feats(self, correct_transition, stack, buff, labels, previous_transitions, arcs, input_sentence):
         for transition in self.possible_transitions(stack, buff):
             features = self.extract_features(transition, stack, buff, labels, previous_transitions, arcs, input_sentence)
-            score = dot(features, self.weights)
-            if best_score == None or score > best_score:
-                best_score = score
-                best_transition = transition
-                best_features = features
-            if transition == correct_transition:
-                correct_features = features
+            if features is not None and len(features) > 0:
+                self.instance_count += 1
+                self.svm_feats[self.instance_count] = features
+                self.svm_labels.append(correct_transition)
+                for feature in features.keys():
+                    self.master_feats[feature] = 1
 
-        if best_transition != correct_transition:
-            assert best_features != None
-            assert correct_features != None
-            self.update(correct_features, best_features)
+    def populate_train_feats(self):
+        feat_keys = self.master_feats.keys()
+        feat_table = [[0 for feat in feat_keys] for i in range(len(self.svm_feats))]
+        for instance_index in range(len(self.svm_feats)):
+            for feat_index in range(len(feat_keys)):
+                instance_feat_val = self.svm_feats[instance_index].get(feat_keys[feat_index], None)
+                if instance_feat_val is not None:
+                    feat_table[instance_index][feat_index] = instance_feat_val
+        return(feat_table)
 
-    def predict(self, stack, buff, labels, previous_transitions, arcs, input_sentence):
+
+
+
+    def train_svm(self):
+        feat_table = self.populate_train_feats()
+        assert len(self.svm_labels) == len(feat_table), "No. of labels of feature vectors don't match"
+        prob = svm_problem(self.svm_labels, feat_table)
+        
+
+
+
+    def predict_perceptron(self, stack, buff, labels, previous_transitions, arcs, input_sentence):
         best_score = None
         best_transition = None
         for transition in self.possible_transitions(stack, buff):
