@@ -4,6 +4,7 @@ from Oracle import Oracle
 from Perceptron import PerceptronModel
 from Transition import Transition
 from helper_functions import Helper as h
+from SVM import *
 
 
 
@@ -88,16 +89,22 @@ class Parser:
                 transition = oracle.getTransition(self.stack, self.buff, \
                     self.leftmostChildren, self.rightmostChildren, \
                     self.arcs, self.labeled)
-                model.learn(transition, self.stack, self.buff, \
+                #model.learn(transition, self.stack, self.buff, \
+                #    self.labels, self.transitions, self.arcs, sentence)
+                model.compile_svm_feats(transition, self.stack, self.buff, \
                     self.labels, self.transitions, self.arcs, sentence)
                 self.execute_transition(transition)
+        model.train_svm()
+
 
     def parse(self, testSet, model):
         corpus = Parser.load_corpus(testSet)
         for sentence in corpus:
             self.initialize(sentence)
             while len(self.buff) > 0 or len(self.stack) > 1:
-                _, transition = model.predict(self.stack, self.buff, \
+                #_, transition = model.predict(self.stack, self.buff, \
+                #    self.labels, self.transitions, self.arcs, sentence)
+                transition = model.predict_svm(self.stack, self.buff, \
                     self.labels, self.transitions, self.arcs, sentence)
                 self.execute_transition(transition)
             self.output(sentence)
@@ -110,13 +117,17 @@ if __name__ == "__main__":
     parser.add_argument('testset', help='Dev/test treebank')
     args = parser.parse_args()
 
-    p = Parser(args.labeled)
+    #p = Parser(args.labeled)
     #p = Parser(True)
-    #p = Parser(False)
+    p = Parser(False)
 
-    model = PerceptronModel(args.labeled)
+    #model = PerceptronModel(args.labeled)
     #model = PerceptronModel(True)
     #model = PerceptronModel(False)
 
-    p.train(args.trainingcorpus, model)
-    p.parse(args.testset, model)
+    #svm_model = SVMModel(args.labeled)
+    #svm_model = SVMModel(True)
+    svm_model = SVMModel(False)
+
+    p.train(args.trainingcorpus, svm_model)
+    p.parse(args.testset, svm_model)
