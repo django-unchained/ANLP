@@ -275,8 +275,8 @@ class SVMModel:
         feat31_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 1, 0, 0, 1)#pos or pre-top's rmc
         feat4_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, 0, 0, -1)#dep for top's lmc
         feat41_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 0, 0, 0, -1)#pos for top's lmc
-        #feat5_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 1)#lex for pre-top
-        #feat6_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 0)#lex for top
+        feat5_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 1)#lex for pre-top
+        feat6_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 0)#lex for top
 
         #feat7_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.BUFF_SOURCE)#lex for next buffer item
         feat71_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.BUFF_SOURCE)#pos for next buffer item
