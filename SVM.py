@@ -302,7 +302,6 @@ class SVMModel:
         feat18_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, 1)#dep for word after top in input
         feat19_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, -1)#dep for word before top in input
 
-        """
         #stack, buff, input_sentence, arcs, labels, tType, feat_type, source_type, source_offset = 0, input_offset = 0, head_multiplier = 0, left_rightmost_multiplier = 0, left_right_sibling_specifier = 0, suffix_len = 0
         pre_top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 1)
         top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 0)
@@ -318,15 +317,19 @@ class SVMModel:
         #cfeat_8 = self.compose_feats(features, [cfeat_1, top_pos])#lex_pos of pre-top with pos of top
         #cfeat_9 = self.compose_feats(features, [pre_top_pos, cfeat_2]) #pos of pre-top with lex_pos of top
         #cfeat_10 = self.compose_feats(features, [feat5_model7, feat6_model7])#lex of both pre_top and top
+
         cfeat_11 = self.compose_feats(features, [pre_top_pos, top_pos])#pos of both pre_top and top
+
+        """
         cfeat_12 = self.compose_feats(features, [top_pos, feat71_model7])#pos of top and next buff
         cfeat_13 = self.compose_feats(features, [top_pos, feat71_model7, feat76_model7])#pos for top next and next next
         cfeat_14 = self.compose_feats(features, [pre_top_pos, top_pos, feat71_model7])#pos for pre-top, top and next
-        #pos for pre top head, pre-top and top
-        cfeat_15 = self.compose_feats(features, [pre_top_pos, feat21_model7, top_pos])#pos for pre-top pre top lmc and top
-        cfeat_16 = self.compose_feats(features, [pre_top_pos, feat31_model7, top_pos])#pos for pre-top, pre-top rmc and top
-        cfeat_17 = self.compose_feats(features, [pre_top_pos, top_pos, feat41_model7])#pos for pre-top, top and top's lmc
         """
+        #pos for pre top head, pre-top and top
+        #cfeat_15 = self.compose_feats(features, [pre_top_pos, feat21_model7, top_pos])#pos for pre-top pre top lmc and top
+        #cfeat_16 = self.compose_feats(features, [pre_top_pos, feat31_model7, top_pos])#pos for pre-top, pre-top rmc and top
+        #cfeat_17 = self.compose_feats(features, [pre_top_pos, top_pos, feat41_model7])#pos for pre-top, top and top's lmc
+
 
         # Top two POS tags from the stack
         for i in range(3):#was originally 2
