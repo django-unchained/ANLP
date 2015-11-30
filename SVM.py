@@ -322,8 +322,9 @@ class SVMModel:
 
 
         cfeat_12 = self.compose_feats(features, [top_pos, feat71_model7])#pos of top and next buff
-        """
+
         cfeat_13 = self.compose_feats(features, [top_pos, feat71_model7, feat76_model7])#pos for top next and next next
+        """
         cfeat_14 = self.compose_feats(features, [pre_top_pos, top_pos, feat71_model7])#pos for pre-top, top and next
         """
         #pos for pre top head, pre-top and top
