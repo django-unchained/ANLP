@@ -5,6 +5,12 @@ from collections import defaultdict
 from helper_functions import Helper as h
 from sklearn import svm
 import numpy
+from sklearn.datasets import load_svmlight_file
+from scipy import sparse
+from collections import defaultdict
+import pickle
+from operator import itemgetter
+#from text_utils import *
 
 
 def dot(features, weights):
@@ -57,6 +63,7 @@ class SVMModel:
         self.svm_model = svm.LinearSVC() #Implements one-vs-rest classifier
         #self.svm_model = svm.LinearSVC(decision_function_shape='ovo', probability=True) #Implements one-vs-rest classifier
         #TRY EXPERIMENTING WITH KERNELS!!
+        self._dictionary = {}
 
     def try_get_token(self, source, index):
         try:
@@ -376,6 +383,15 @@ class SVMModel:
         #Should this distance feature value instead be an indicator?
 
         #Valency function
+        if(len(stack) > 1):
+            [left_valency, right_valency] = self.get_valency(arcs, h.get_id(stack[-1]))
+            left_val_feat = 'transition=%d,head_left_valency=%d' % (tType, left_valency)
+            features[left_val_feat + top_pos] = 1
+            features[left_val_feat] = 1
+            right_val_feat = 'transition=%d,head_right_valency=%d' % (tType, right_valency)
+            features[right_val_feat] = 1
+            features[right_val_feat + top_pos] = 1
+
         if len(stack) > 1:
             if tType == Transition.LeftArc: # Left Arc
                 [left_valency, right_valency] = self.get_valency(arcs, h.get_id(stack[-1]))
@@ -432,6 +448,7 @@ class SVMModel:
 
     #SHOULD WE TAKE CARE OF BIAS FEATURES FOR EACH TRANSITION TYPE???
 
+
     def populate_train_feats(self):
         feat_keys = self.master_feats.keys()
         #feat_table = [[0 for feat in feat_keys] for i in range(len(self.svm_feats))]
@@ -485,3 +502,29 @@ class SVMModel:
 
         #print >>sys.stderr, predicted_transition_id
         return (self.svm_id_to_label_transition[predicted_transition_id[0]])
+
+"""
+    #DHEERAJ'S METHOD:
+
+    def file_to_binary(self, features):
+        unsorted_result = []
+        for feature in features:
+            self._dictionary.setdefault(feature, len(self._dictionary))
+            unsorted_result.append(self._dictionary[feature])
+        return ' '.join(str(featureID) + ':1' for featureID in sorted(unsorted_result))
+
+    def write_to_file(self, key, binary_features, input_file):
+        input_str = str(key) + ' ' + binary_features + '\n'
+        input_file.write(input_str.encode('utf-8'))
+
+    def alternate_learn(self, correct_transition, stack, buff, labels, previous_transitions, arcs, input_sentence, input_file):
+        features = self.extract_features(correct_transition, stack, buff, labels, previous_transitions, arcs, input_sentence)
+        binary_features = self.file_to_binary(features)
+        self.write_to_file(correct_transition.transitionType, binary_features, input_file)
+
+    def alternate_train_model(self,input_file):
+        x_train, y_train = load_svmlight_file(input_file.name)
+        model = svm.LinearSVC(C=1)
+        model.fit(x_train, y_train)
+        pickle.dump(model, open('model_svm', 'wb'))
+"""
