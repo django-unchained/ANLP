@@ -275,13 +275,14 @@ class SVMModel:
 
         #Model7 features as described in http://stp.lingfil.uu.se/~nivre/docs/maltparser.pdf
 
-        feat1_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1)#dep for pre-top
-        feat2_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1, 0, 0, -1) #dep for pre-top's lmc
+        #feat1_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1)#dep for pre-top
+        #feat2_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1, 0, 0, -1) #dep for pre-top's lmc
         feat21_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 1, 0, 0, -1) #pos for pre-top's lmc
-        feat3_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1, 0, 0, 1)#dep or pre-top's rmc
+        #feat3_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1, 0, 0, 1)#dep or pre-top's rmc
         feat31_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 1, 0, 0, 1)#pos or pre-top's rmc
-        feat4_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, 0, 0, -1)#dep for top's lmc
+        #feat4_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, 0, 0, -1)#dep for top's lmc
         feat41_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 0, 0, 0, -1)#pos for top's lmc
+        feat42_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 0, 0, 0, 1)#pos for top's rmc
         feat5_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 1)#lex for pre-top
         feat6_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 0)#lex for top
 
@@ -312,6 +313,7 @@ class SVMModel:
         #stack, buff, input_sentence, arcs, labels, tType, feat_type, source_type, source_offset = 0, input_offset = 0, head_multiplier = 0, left_rightmost_multiplier = 0, left_right_sibling_specifier = 0, suffix_len = 0
         pre_top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 1)
         top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 0)
+        pre_pre_top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 2)
         #cfeat_1 = self.compose_feats(features, [feat5_model7, pre_top_pos])#lex_pos of pre-top
         #cfeat_2 = self.compose_feats(features, [feat6_model7, top_pos])#lex_pos for top
 
@@ -331,13 +333,17 @@ class SVMModel:
         cfeat_12 = self.compose_feats(features, [top_pos, feat71_model7])#pos of top and next buff
 
         cfeat_13 = self.compose_feats(features, [top_pos, feat71_model7, feat76_model7])#pos for top next and next next
+
+        #cfeat_135 = self.compose_feats(features, [pre_pre_top_pos, pre_top_pos, top_pos])
+        #cfeat_145 = self.compose_feats(features, [pre_top_pos, top_pos, feat71_model7])
         """
         cfeat_14 = self.compose_feats(features, [pre_top_pos, top_pos, feat71_model7])#pos for pre-top, top and next
         """
         #pos for pre top head, pre-top and top
         #cfeat_15 = self.compose_feats(features, [pre_top_pos, feat21_model7, top_pos])#pos for pre-top pre top lmc and top
         #cfeat_16 = self.compose_feats(features, [pre_top_pos, feat31_model7, top_pos])#pos for pre-top, pre-top rmc and top
-        #cfeat_17 = self.compose_feats(features, [pre_top_pos, top_pos, feat41_model7])#pos for pre-top, top and top's lmc
+        cfeat_17 = self.compose_feats(features, [pre_top_pos, top_pos, feat41_model7])#pos for pre-top, top and top's lmc
+        cfeat_175 = self.compose_feats(features, [pre_top_pos, top_pos, feat42_model7])#pos for pre-top, top and top's rmc
 
 
         # Top two POS tags from the stack
@@ -348,8 +354,8 @@ class SVMModel:
             pos = s[3]
             features['transition=%d,s%d.pos=%s' % (tType, i, pos)] = 1
 
-        # Next four POS tags from the buffer
-        for i in range(3):
+        # Next 2 POS tags from the buffer
+        for i in range(2):
             if i >= len(buff):
                 break
             b = buff[-(i+1)]
