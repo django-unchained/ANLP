@@ -50,7 +50,7 @@ class PerceptronModel:
             print >>sys.stderr, 'Invalid source type'
         return(source)
 
-    def get_input_offset_token(self, token, input_sentence, input_offset):#CONFIRM THIS!!!
+    def get_input_offset_token(self, token, input_sentence, input_offset):
         if h.get_id(token) + input_offset <= 0: #To prevent wraparound
             return(None)
         return(self.try_get_token(input_sentence, -(h.get_id(token) + input_offset))) # No +1 since the token id starts from 1 instead of 0
@@ -275,7 +275,6 @@ class PerceptronModel:
         feat18_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, 1)#dep for word after top in input
         feat19_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, -1)#dep for word before top in input
 
-        #stack, buff, input_sentence, arcs, labels, tType, feat_type, source_type, source_offset = 0, input_offset = 0, head_multiplier = 0, left_rightmost_multiplier = 0, left_right_sibling_specifier = 0, suffix_len = 0
         pre_top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 1)
         top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 0)
         cfeat_1 = self.compose_feats(features, [feat5_model7, pre_top_pos])#lex_pos of pre-top
@@ -294,7 +293,6 @@ class PerceptronModel:
         cfeat_12 = self.compose_feats(features, [top_pos, feat71_model7])#pos of top and next buff
         cfeat_13 = self.compose_feats(features, [top_pos, feat71_model7, feat76_model7])#pos for top next and next next
         cfeat_14 = self.compose_feats(features, [pre_top_pos, top_pos, feat71_model7])#pos for pre-top, top and next
-        #pos for pre top head, pre-top and top
         cfeat_15 = self.compose_feats(features, [pre_top_pos, feat21_model7, top_pos])#pos for pre-top pre top lmc and top
         cfeat_16 = self.compose_feats(features, [pre_top_pos, feat31_model7, top_pos])#pos for pre-top, pre-top rmc and top
         cfeat_17 = self.compose_feats(features, [pre_top_pos, top_pos, feat41_model7])#pos for pre-top, top and top's lmc
@@ -340,7 +338,6 @@ class PerceptronModel:
                 features['transition=%d,neg_dist=' % (tType)] = dist
             else:
                 features['transition=%d,pos_dist=' % (tType)] = dist
-        #Should this distance feature value instead be an indicator?
 
         #Valency function
         if len(stack) > 1:
@@ -352,9 +349,6 @@ class PerceptronModel:
                 [left_valency, right_valency] = self.get_valency(arcs, h.get_id(stack[-2]))
                 features['transition=%d,head_left_valency=%d' % (tType, left_valency)] = 1
                 features['transition=%d,head_right_valency=%d' % (tType, right_valency)] = 1
-
-        #Can further add Unigram information
-        #Head of left/rightmost modifiers of pre-top and left most modifier of top
         return features
 
     def add_model7_feat(self, feature_dict, stack, buff, input_sentence, arcs, labels, tType, feat_type, source_type, source_offset = 0, input_offset = 0, head_multiplier = 0, left_rightmost_multiplier = 0, left_right_sibling_specifier = 0, suffix_len = 0):

@@ -26,7 +26,10 @@ class Helper:
 
     @staticmethod
     def get_id(word):
-        return(int(word[0].strip(' \t\r\n')))
+        try:
+            return(int(word[0].strip(' \t\r\n')))
+        except:
+            return(None)
 
     @staticmethod
     def get_word(word):
@@ -50,7 +53,10 @@ class Helper:
 
     @staticmethod
     def get_head(word):
-        return(int(word[6].strip(' \t\r\n')))
+        try:
+            return(int(word[6].strip(' \t\r\n')))
+        except:
+            return(None)
 
     @staticmethod
     def get_deprel(word):

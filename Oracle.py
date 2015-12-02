@@ -38,6 +38,3 @@ class Oracle:
                 return(Transition(Transition.Shift, None))
             else:
                 return(None)
-
-
-        #assert False, 'Please implement this function!'

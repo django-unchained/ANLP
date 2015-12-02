@@ -22,9 +22,7 @@ class Parser:
         self.transitions = list()
         self.leftmostChildren = h.get_leftmost_children(sentence) #Map from parent to leftmost child
         self.rightmostChildren = h.get_rightmost_children(sentence) #Map from parent to rightmost child
-        """TODO: Calculate the leftmost and rightmost children for each node in the sentence
-        Note: At test time this data is not used."""
-        #assert False, 'Please finish implementing this function!'
+
 
     def execute_transition(self, transition):
         """This function should take a transition object and apply to the
@@ -40,7 +38,6 @@ class Parser:
             self.stack.append(top)
             self.arcs[pre_top_id] = top_id
             self.labels[pre_top_id] = transition.label
-            #self.labels[pre_top_id] = h.get_deprel(pre_top)
         else:
             top = self.stack.pop()
             top_id = h.get_id(top)
@@ -48,9 +45,7 @@ class Parser:
             pre_top_id = h.get_id(pre_top)
             self.arcs[top_id] = pre_top_id
             self.labels[top_id] = transition.label
-            #self.labels[top_id] = h.get_deprel(top)
 
-        #assert False, 'Please implement this function!'
 
     @staticmethod
     def load_corpus(filename):
@@ -117,17 +112,12 @@ if __name__ == "__main__":
     parser.add_argument('testset', help='Dev/test treebank')
     args = parser.parse_args()
 
-    #p = Parser(args.labeled)
-    #p = Parser(True)
-    p = Parser(False)
+    p = Parser(args.labeled)
 
-    #model = PerceptronModel(args.labeled)
-    #model = PerceptronModel(True)
-    #model = PerceptronModel(False)
 
-    #svm_model = SVMModel(args.labeled)
-    #svm_model = SVMModel(True)
-    svm_model = SVMModel(False)
+    #perceptron_model = PerceptronModel(args.labeled)
+
+    svm_model = SVMModel(args.labeled)
 
     p.train(args.trainingcorpus, svm_model)
     p.parse(args.testset, svm_model)

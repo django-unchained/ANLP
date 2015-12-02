@@ -1,16 +1,9 @@
 import sys
-import math
 from Transition import Transition
-from collections import defaultdict
 from helper_functions import Helper as h
 from sklearn import svm
-import numpy
-from sklearn.datasets import load_svmlight_file
-from scipy import sparse
 from collections import defaultdict
 import pickle
-from operator import itemgetter
-#from text_utils import *
 
 
 def dot(features, weights):
@@ -60,10 +53,8 @@ class SVMModel:
         self.instance_count = 0
         self.svm_labels = []
         #self.svm_model = svm.SVC(decision_function_shape='ovo', probability=True) #Implements one-vs-one classifier
-        self.svm_model = svm.LinearSVC() #Implements one-vs-rest classifier
-        #self.svm_model = svm.LinearSVC(decision_function_shape='ovo', probability=True) #Implements one-vs-rest classifier
-        #TRY EXPERIMENTING WITH KERNELS!!
-        self._dictionary = {}
+        self.svm_model = svm.LinearSVC(C=1) #Implements one-vs-rest classifier
+
 
     def try_get_token(self, source, index):
         try:
@@ -275,25 +266,16 @@ class SVMModel:
 
         #Model7 features as described in http://stp.lingfil.uu.se/~nivre/docs/maltparser.pdf
 
-        #feat1_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1)#dep for pre-top
-        #feat2_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1, 0, 0, -1) #dep for pre-top's lmc
         feat21_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 1, 0, 0, -1) #pos for pre-top's lmc
-        #feat3_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1, 0, 0, 1)#dep or pre-top's rmc
         feat31_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 1, 0, 0, 1)#pos or pre-top's rmc
-        #feat4_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, 0, 0, -1)#dep for top's lmc
         feat41_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 0, 0, 0, -1)#pos for top's lmc
         feat42_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 0, 0, 0, 1)#pos for top's rmc
         feat5_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 1)#lex for pre-top
         feat6_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 0)#lex for top
 
-        #feat7_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.BUFF_SOURCE)#lex for next buffer item --> only increases by 0.2% by adding 10000 features
         feat71_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.BUFF_SOURCE)#pos for next buffer item
 
-        #feat75_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.BUFF_SOURCE, 1)#lex for next-next buffer item
         feat76_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.BUFF_SOURCE, 1)#pos for next-next buffer item
-
-        #feat8_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 1, 1)#lex for word after pre-top in input
-        #feat9_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 1, -1)#lex for word before pre-top in input
 
         feat10_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 1, 1)#pos for word after pre-top in input
         feat11_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 1, -1)#pos for word before pre-top in input
@@ -302,7 +284,6 @@ class SVMModel:
         feat13_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 1, -1)#dep for word before pre-top in input
 
         feat14_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 0, 1)#lex for word after top in input
-        #feat15_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.LEX_FEAT, self.STACK_SOURCE, 0, -1)#lex for word before top in input
 
         feat16_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 0, 1)#pos for word after top in input
         feat17_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.POS_FEAT, self.STACK_SOURCE, 0, -1)#pos for word before top in input
@@ -310,22 +291,8 @@ class SVMModel:
         feat18_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, 1)#dep for word after top in input
         feat19_model7 = self.add_model7_feat(features, stack, buff, input_sentence, arcs, labels, tType,self.DEP_FEAT, self.STACK_SOURCE, 0, -1)#dep for word before top in input
 
-        #stack, buff, input_sentence, arcs, labels, tType, feat_type, source_type, source_offset = 0, input_offset = 0, head_multiplier = 0, left_rightmost_multiplier = 0, left_right_sibling_specifier = 0, suffix_len = 0
         pre_top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 1)
         top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 0)
-        pre_pre_top_pos = self.get_model7_params(stack, buff, input_sentence, arcs, labels, tType, self.POS_FEAT, self.STACK_SOURCE, 2)
-        #cfeat_1 = self.compose_feats(features, [feat5_model7, pre_top_pos])#lex_pos of pre-top
-        #cfeat_2 = self.compose_feats(features, [feat6_model7, top_pos])#lex_pos for top
-
-        #cfeat_3 = self.compose_feats(features, [feat7_model7, feat71_model7])#lex_pos for next buffer item
-        #cfeat_4 = self.compose_feats(features, [feat75_model7,feat76_model7])#lex_pos for next-next buffer item
-
-        #cfeat_5 = self.compose_feats(features, [cfeat_1, cfeat_2])#lex_pos for both pre-top and top
-        #cfeat_6 = self.compose_feats(features, [cfeat_1, feat6_model7])#lex_pos of pre-top with lex of top
-        #cfeat_7 = self.compose_feats(features, [feat5_model7, cfeat_2])#lex of pre-top with lex_pos of top
-        #cfeat_8 = self.compose_feats(features, [cfeat_1, top_pos])#lex_pos of pre-top with pos of top
-        #cfeat_9 = self.compose_feats(features, [pre_top_pos, cfeat_2]) #pos of pre-top with lex_pos of top
-        #cfeat_10 = self.compose_feats(features, [feat5_model7, feat6_model7])#lex of both pre_top and top
 
         cfeat_11 = self.compose_feats(features, [pre_top_pos, top_pos])#pos of both pre_top and top
 
@@ -334,14 +301,6 @@ class SVMModel:
 
         cfeat_13 = self.compose_feats(features, [top_pos, feat71_model7, feat76_model7])#pos for top next and next next
 
-        #cfeat_135 = self.compose_feats(features, [pre_pre_top_pos, pre_top_pos, top_pos])
-        #cfeat_145 = self.compose_feats(features, [pre_top_pos, top_pos, feat71_model7])
-        """
-        cfeat_14 = self.compose_feats(features, [pre_top_pos, top_pos, feat71_model7])#pos for pre-top, top and next
-        """
-        #pos for pre top head, pre-top and top
-        #cfeat_15 = self.compose_feats(features, [pre_top_pos, feat21_model7, top_pos])#pos for pre-top pre top lmc and top
-        #cfeat_16 = self.compose_feats(features, [pre_top_pos, feat31_model7, top_pos])#pos for pre-top, pre-top rmc and top
         cfeat_17 = self.compose_feats(features, [pre_top_pos, top_pos, feat41_model7])#pos for pre-top, top and top's lmc
         cfeat_175 = self.compose_feats(features, [pre_top_pos, top_pos, feat42_model7])#pos for pre-top, top and top's rmc
 
@@ -369,9 +328,6 @@ class SVMModel:
         else:
             features['transition=%d,prev_transition=None' % (tType)] = 1
 
-        # Bias feature
-        #features['transition=%d' % (transition.transitionType)] = 1 # Not needed for SVM
-
         if self.labeled and transition is not None:#We don't care about labelled case and transition should not be passed for SVM
             # Action and label pair
             features['transition=%d,label=%s' % (transition.transitionType, transition.label)] = 1
@@ -386,7 +342,6 @@ class SVMModel:
                 features['transition=%d,neg_dist=' % (tType)] = dist
             else:
                 features['transition=%d,pos_dist=' % (tType)] = dist
-        #Should this distance feature value instead be an indicator?
 
         #Valency function
         if(len(stack) > 1):
@@ -398,18 +353,6 @@ class SVMModel:
             features[right_val_feat] = 1
             features[right_val_feat + top_pos] = 1
 
-        if len(stack) > 1:
-            if tType == Transition.LeftArc: # Left Arc
-                [left_valency, right_valency] = self.get_valency(arcs, h.get_id(stack[-1]))
-                features['transition=%d,head_left_valency=%d' % (tType, left_valency)] = 1
-                features['transition=%d,head_right_valency=%d' % (tType, right_valency)] = 1
-            elif tType == Transition.RightArc:#should probably check for right arc here!
-                [left_valency, right_valency] = self.get_valency(arcs, h.get_id(stack[-2]))
-                features['transition=%d,head_left_valency=%d' % (tType, left_valency)] = 1
-                features['transition=%d,head_right_valency=%d' % (tType, right_valency)] = 1
-
-        #Can further add Unigram information
-        #Head of left/rightmost modifiers of pre-top and left most modifier of top
         return features
 
     def add_model7_feat(self, feature_dict, stack, buff, input_sentence, arcs, labels, tType, feat_type, source_type, source_offset = 0, input_offset = 0, head_multiplier = 0, left_rightmost_multiplier = 0, left_right_sibling_specifier = 0, suffix_len = 0):
@@ -452,12 +395,9 @@ class SVMModel:
                 self.master_feats[feature] = 1
             self.instance_count += 1
 
-    #SHOULD WE TAKE CARE OF BIAS FEATURES FOR EACH TRANSITION TYPE???
-
 
     def populate_train_feats(self):
         feat_keys = self.master_feats.keys()
-        #feat_table = [[0 for feat in feat_keys] for i in range(len(self.svm_feats))]
         feat_table = [[self.svm_feats[instance_index].get(feat, 0) for feat in feat_keys] for instance_index in range(len(self.svm_feats))]
         return(feat_table)
 
@@ -466,6 +406,7 @@ class SVMModel:
         feat_table = self.populate_train_feats()
         assert len(self.svm_labels) == len(feat_table), "No. of labels of feature vectors don't match"
         self.svm_model.fit(feat_table, self.svm_labels)
+        pickle.dump(self.svm_model, open('trained_model.svm', 'wb'))
         print >>sys.stderr, 'Done training'
 
     def get_best_arc(self, arc_probabs):
@@ -505,32 +446,4 @@ class SVMModel:
                 best_arc = self.get_best_arc(regular_dist_array)
                 assert best_arc > 1, "Invalid arc proposed"
                 return(self.svm_id_to_label_transition[best_arc])
-
-        #print >>sys.stderr, predicted_transition_id
         return (self.svm_id_to_label_transition[predicted_transition_id[0]])
-
-"""
-    #DHEERAJ'S METHOD:
-
-    def file_to_binary(self, features):
-        unsorted_result = []
-        for feature in features:
-            self._dictionary.setdefault(feature, len(self._dictionary))
-            unsorted_result.append(self._dictionary[feature])
-        return ' '.join(str(featureID) + ':1' for featureID in sorted(unsorted_result))
-
-    def write_to_file(self, key, binary_features, input_file):
-        input_str = str(key) + ' ' + binary_features + '\n'
-        input_file.write(input_str.encode('utf-8'))
-
-    def alternate_learn(self, correct_transition, stack, buff, labels, previous_transitions, arcs, input_sentence, input_file):
-        features = self.extract_features(correct_transition, stack, buff, labels, previous_transitions, arcs, input_sentence)
-        binary_features = self.file_to_binary(features)
-        self.write_to_file(correct_transition.transitionType, binary_features, input_file)
-
-    def alternate_train_model(self,input_file):
-        x_train, y_train = load_svmlight_file(input_file.name)
-        model = svm.LinearSVC(C=1)
-        model.fit(x_train, y_train)
-        pickle.dump(model, open('model_svm', 'wb'))
-"""
